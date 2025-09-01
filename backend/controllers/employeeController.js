@@ -1,4 +1,4 @@
-const Employee = require('../models/Employee');
+const Employee = require('../models/employee');
 const multer = require('multer');
 const path = require('path');
 
@@ -24,12 +24,12 @@ const upload = multer({
             cb(new Error('Only .jpg, .jpeg, .png files are allowed!'));
         }
     },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 }, 
 });
 
 // Add new employee
 exports.addEmployee = [
-    upload.single('image'), // Handle single image upload
+    upload.single('image'), 
     async (req, res) => {
         try {
             const { fullName, position, department, email } = req.body;
@@ -51,7 +51,7 @@ exports.addEmployee = [
     },
 ];
 
-// Get all employees (with optional department filter)
+// Get all employees with department filter
 exports.getAllEmployees = async (req, res) => {
     try {
         const { department } = req.query;

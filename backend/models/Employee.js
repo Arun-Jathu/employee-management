@@ -5,7 +5,7 @@ const employeeSchema = new mongoose.Schema({
     position: { type: String, required: true },
     department: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    image: { type: String }, // Stores the file path or URL of the uploaded image
+    image: { type: String }, 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Employee', employeeSchema);
