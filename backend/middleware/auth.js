@@ -4,10 +4,6 @@ const jwt = require('jsonwebtoken');
 
 /**
  * Middleware to authenticate requests using JWT
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- * @returns {Promise<void>} Proceeds to next middleware if token is valid, else responds with an error
  */
 module.exports = async (req, res, next) => {
   // Extract token from Authorization header, removing 'Bearer ' prefix

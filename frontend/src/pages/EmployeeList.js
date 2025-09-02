@@ -2,49 +2,75 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig';
 
-function EmployeeList() {
-  const navigate = useNavigate();
-  const [employees, setEmployees] = useState([]);
-  const [department, setDepartment] = useState('');
+// Imports React for component creation, useState and useEffect for state and lifecycle management,
+// react-router-dom for navigation, and axios for API requests
 
+/**
+ * EmployeeList component for displaying and managing employees
+ */
+function EmployeeList() {
+  // Initialize navigation hook for redirecting on logout or unauthorized access
+  const navigate = useNavigate();
+
+  // State for employee list and department filter
+  const [employees, setEmployees] = useState([]); // Store fetched employees
+  const [department, setDepartment] = useState(''); // Store selected department filter
+
+  /**
+   * Fetch employees on component mount or department change
+   */
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
+        // Fetch employees from API, with optional department filter
         const response = await axios.get(
           `/api/employees${department ? `?department=${department}` : ''}`
         );
+        // Update employee list state
         setEmployees(response.data);
       } catch (error) {
+        // Handle unauthorized access (e.g., invalid/expired token)
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
+          localStorage.removeItem('token'); // Clear token
+          navigate('/login'); // Redirect to login
         } else {
+          // Log other errors
           console.error('Error fetching employees:', error);
         }
       }
     };
     fetchEmployees();
-  }, [department, navigate]);
+  }, [department, navigate]); // Re-run when department or navigate changes
 
+  /**
+   * Handle employee deletion
+   */
   const handleDelete = async (id) => {
+    // Confirm deletion with user
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
+        // Send DELETE request to remove employee
         await axios.delete(`/api/employees/${id}`);
+        // Remove employee from state
         setEmployees(employees.filter((emp) => emp._id !== id));
       } catch (error) {
+        // Handle unauthorized access
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
+          localStorage.removeItem('token'); // Clear token
+          navigate('/login'); // Redirect to login
         } else {
+          // Log other errors
           console.error('Error deleting employee:', error);
         }
       }
     }
   };
 
+  // Render header and employee list
   return React.createElement(
     React.Fragment,
     null,
+    // Header with title, description, and action buttons
     React.createElement(
       'header',
       null,
@@ -63,7 +89,9 @@ function EmployeeList() {
           React.createElement(
             'div',
             null,
+            // Link to add employee page
             React.createElement(Link, { to: '/add', className: 'btn' }, '+ Add Employee'),
+            // Logout button to clear token and redirect
             React.createElement(
               'button',
               {
@@ -80,6 +108,7 @@ function EmployeeList() {
         )
       )
     ),
+    // Main content with filter and employee grid
     React.createElement(
       'main',
       null,
@@ -89,6 +118,7 @@ function EmployeeList() {
         React.createElement(
           'div',
           { className: 'flex' },
+          // Department filter dropdown
           React.createElement('label', null, 'Filter by Department:'),
           React.createElement(
             'select',
@@ -98,6 +128,7 @@ function EmployeeList() {
               React.createElement('option', { value: dept, key: dept }, dept)
             )
           ),
+          // Display total employee count
           React.createElement(
             'div',
             { className: 'employee-count' },
@@ -106,8 +137,10 @@ function EmployeeList() {
           )
         )
       ),
+      // Conditional rendering based on employee list
       employees.length === 0
-        ? React.createElement(
+        ? // Empty state for no employees
+          React.createElement(
             'div',
             { className: 'empty-state' },
             React.createElement('div', { className: 'icon' }, '👥'),
@@ -115,13 +148,15 @@ function EmployeeList() {
             React.createElement('p', null, 'Start by adding your first employee to the system'),
             React.createElement(Link, { to: '/add', className: 'btn' }, 'Add First Employee')
           )
-        : React.createElement(
+        : // Employee grid for non-empty list
+          React.createElement(
             'div',
             { className: 'employee-grid' },
             employees.map((employee) =>
               React.createElement(
                 'div',
                 { key: employee._id, className: 'employee-card' },
+                // Employee image placeholder
                 React.createElement(
                   'div',
                   null,
@@ -133,6 +168,7 @@ function EmployeeList() {
                     className: employee.image ? '' : 'placeholder',
                   })
                 ),
+                // Employee details and action buttons
                 React.createElement(
                   'div',
                   null,
@@ -143,8 +179,10 @@ function EmployeeList() {
                   React.createElement(
                     'div',
                     { className: 'btn-group' },
+                    // Links to view or edit employee details
                     React.createElement(Link, { to: `/employee/${employee._id}`, className: 'btn btn-view' }, 'View'),
                     React.createElement(Link, { to: `/edit/${employee._id}`, className: 'btn btn-edit' }, 'Edit'),
+                    // Delete button with confirmation message
                     React.createElement(
                       'button',
                       { onClick: () => handleDelete(employee._id), className: 'btn btn-delete' },

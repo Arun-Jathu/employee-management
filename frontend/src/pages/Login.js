@@ -2,32 +2,57 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from '../axiosConfig';
 
-function Login() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+// Imports React for component creation, useState for state management,
+// react-router-dom for navigation, and axios for API requests
 
+/**
+ * Login component for user authentication
+ */
+function Login() {
+  // Initialize navigation hook for redirecting after login
+  const navigate = useNavigate();
+
+  // State for form data, error messages, and password visibility
+  const [formData, setFormData] = useState({ email: '', password: '' }); // Store form input
+  const [error, setError] = useState(''); // Store error messages
+  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
+
+  /**
+   * Handle changes to form input fields
+   */
   const handleChange = (e) => {
+    // Update form data state with new input value
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handle form submission for user login
+   */
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
     try {
+      // Send POST request to login endpoint
       const response = await axios.post('/api/users/login', formData);
+      // Store JWT token in localStorage
       localStorage.setItem('token', response.data.token);
-      setError('');
+      setError(''); // Clear any previous errors
+      // Redirect to employee list on success
       navigate('/');
     } catch (err) {
+      // Display error from server or generic message
       setError(err.response?.data?.error || 'Failed to login');
     }
   };
 
+  /**
+   * Toggle password visibility
+   */
   const togglePassword = () => {
+    // Switch between showing and hiding password
     setShowPassword(!showPassword);
   };
 
+  // Render login form
   return React.createElement(
     'div',
     { className: 'min-h-screen auth-container flex items-center justify-center p-4' },
@@ -37,12 +62,14 @@ function Login() {
       React.createElement(
         'div',
         { className: 'bg-white rounded-2xl shadow-2xl p-8 fade-in' },
+        // Header with icon, title, and description
         React.createElement(
           'div',
           { className: 'text-center mb-8' },
           React.createElement(
             'div',
             { className: 'bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4' },
+            // User icon for login
             React.createElement(
               'svg',
               { className: 'w-8 h-8 text-indigo-600', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
@@ -57,9 +84,11 @@ function Login() {
           React.createElement('h2', { className: 'text-3xl font-bold text-gray-900 mb-2' }, 'Welcome Back'),
           React.createElement('p', { className: 'text-gray-600' }, 'Sign in to your account to continue')
         ),
+        // Login form
         React.createElement(
           'form',
           { onSubmit: handleSubmit, className: 'space-y-6' },
+          // Email input field
           React.createElement(
             'div',
             null,
@@ -74,6 +103,7 @@ function Login() {
               placeholder: 'Enter your email'
             })
           ),
+          // Password input field with visibility toggle
           React.createElement(
             'div',
             null,
@@ -90,6 +120,7 @@ function Login() {
                 className: 'w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
                 placeholder: 'Enter your password'
               }),
+              // Button to toggle password visibility
               React.createElement(
                 'button',
                 {
@@ -97,6 +128,7 @@ function Login() {
                   onClick: togglePassword,
                   className: 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
                 },
+                // Eye icon for visibility toggle
                 React.createElement(
                   'svg',
                   { className: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
@@ -116,7 +148,9 @@ function Login() {
               )
             )
           ),
+          // Display error message if login fails
           error && React.createElement('div', { className: 'text-red-600 text-sm' }, error),
+          // Remember me checkbox and forgot password link
           React.createElement(
             'div',
             { className: 'flex items-center justify-between' },
@@ -135,6 +169,7 @@ function Login() {
               'Forgot password?'
             )
           ),
+          // Submit button
           React.createElement(
             'button',
             {
@@ -144,6 +179,7 @@ function Login() {
             'Sign In'
           )
         ),
+        // Link to registration page
         React.createElement(
           'div',
           { className: 'mt-8 text-center' },

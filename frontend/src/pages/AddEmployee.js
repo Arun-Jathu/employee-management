@@ -2,94 +2,133 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from '../axiosConfig';
 
+// Imports React for component creation, useState for state management,
+// react-router-dom for navigation, and axios for API requests
+
+/**
+ * AddEmployee interface for creating a new employee
+ */
 function AddEmployee() {
+  // Initialize navigation hook for redirecting after form submission
   const navigate = useNavigate();
+
+  // State for form data (employee details)
   const [formData, setFormData] = useState({
     fullName: "",
     position: "",
     department: "",
     email: "",
   });
+
+  // State for image file, preview, and upload status
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(
+    // Default SVG placeholder for image preview
     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/%3E%3C/svg%3E'
   );
-  const [showRemoveImage, setShowRemoveImage] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [showRemoveImage, setShowRemoveImage] = useState(false); // Toggle remove image button
+  const [uploadProgress, setUploadProgress] = useState(0); // Track image upload progress
+  const [error, setError] = useState(""); // Store error messages
+  const [success, setSuccess] = useState(""); // Store success messages
 
+  /**
+   * Handle changes to form input fields
+   */
   const handleChange = (e) => {
+    // Update form data state with new input value
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handle image file selection and preview
+   */
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) return; // Exit if no file selected
 
+    // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       setError("Please select a valid image file (JPG, PNG, GIF, or WebP)");
       return;
     }
 
+    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError("File size must be less than 5MB");
       return;
     }
 
+    // Set image state and clear previous messages
     setImage(file);
     setError("");
     setSuccess("");
 
+    // Create FileReader for image preview
     const reader = new FileReader();
-    reader.onloadstart = () => setUploadProgress(10);
+    reader.onloadstart = () => setUploadProgress(10); // Start progress at 10%
     reader.onprogress = (e) => {
+      // Update progress based on file reading
       if (e.lengthComputable) {
         setUploadProgress(Math.round((e.loaded / e.total) * 80) + 10);
       }
     };
     reader.onload = (e) => {
+      // Set preview image, show remove button, and display success message
       setUploadProgress(100);
       setImagePreview(e.target.result);
       setShowRemoveImage(true);
       setSuccess("Photo uploaded successfully!");
+      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);
     };
     reader.onerror = () => {
+      // Handle file reading errors
       setError("Error reading file. Please try again.");
       setUploadProgress(0);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file); // Read file as data URL for preview
   };
 
+  /**
+   * Remove selected image and reset preview
+   */
   const removeImage = () => {
+    // Clear image state and reset to default SVG placeholder
     setImage(null);
     setImagePreview(
       'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/%3E%3C/svg%3E'
     );
-    setShowRemoveImage(false);
-    setUploadProgress(0);
-    setError("");
-    setSuccess("");
+    setShowRemoveImage(false); // Hide remove button
+    setUploadProgress(0); // Reset progress
+    setError(""); // Clear error
+    setSuccess(""); // Clear success
   };
 
+  /**
+   * Handle form submission to create employee
+   */
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
+    // Create FormData for multipart/form-data request
     const data = new FormData();
     Object.keys(formData).forEach((key) => data.append(key, formData[key]));
-    if (image) data.append("image", image);
+    if (image) data.append("image", image); // Append image if selected
 
     try {
+      // Send POST request to create employee
       await axios.post("/api/employees", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      // Redirect to employee list on success
       navigate("/");
     } catch (error) {
+      // Display error from server or generic message
       setError(error.response?.data?.error || "Failed to add employee");
     }
   };
 
+  // Render modal with employee form
   return React.createElement(
     "div",
     { className: "modal-backdrop" },
@@ -106,7 +145,7 @@ function AddEmployee() {
           React.createElement(
             Link,
             { to: "/", className: "close-btn" },
-            "×"
+            "×" // Close button redirects to employee list
           )
         ),
         React.createElement(
@@ -118,6 +157,7 @@ function AddEmployee() {
             React.createElement(
               "div",
               { className: "image-container" },
+              // Display image preview or placeholder
               React.createElement("img", {
                 src: imagePreview,
                 alt: "Preview",
@@ -132,6 +172,7 @@ function AddEmployee() {
                   className: "image-overlay",
                   onClick: () => document.getElementById("imageUpload").click()
                 },
+                // SVG icon for image upload
                 React.createElement(
                   "svg",
                   { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
@@ -149,6 +190,7 @@ function AddEmployee() {
                   })
                 )
               ),
+              // Show remove button if image is selected
               showRemoveImage &&
                 React.createElement(
                   "button",
@@ -156,6 +198,7 @@ function AddEmployee() {
                   "×"
                 )
             ),
+            // Hidden file input for image selection
             React.createElement("input", {
               type: "file",
               id: "imageUpload",
@@ -166,6 +209,7 @@ function AddEmployee() {
             React.createElement(
               "div",
               { className: "upload-buttons" },
+              // Button to trigger file input
               React.createElement(
                 "button",
                 {
@@ -175,6 +219,7 @@ function AddEmployee() {
                 },
                 "📷 Choose Photo"
               ),
+              // Remove button shown only if image is selected
               showRemoveImage &&
                 React.createElement(
                   "button",
@@ -182,11 +227,13 @@ function AddEmployee() {
                   "🗑️ Remove"
                 )
             ),
+            // Display supported file types and size limit
             React.createElement(
               "p",
               { className: "upload-info" },
               "Supported: JPG, PNG, GIF, WebP (Max 5MB)"
             ),
+            // Show progress bar during image upload
             uploadProgress > 0 &&
               React.createElement(
                 "div",
@@ -201,9 +248,11 @@ function AddEmployee() {
                 ),
                 React.createElement("p", { className: "progress-text" }, "Uploading...")
               ),
+            // Display error or success messages
             error && React.createElement("div", { className: "error-text" }, error),
             success && React.createElement("div", { className: "success-text" }, success)
           ),
+          // Dynamically render form fields for fullName, position, department, email
           ["fullName", "position", "department", "email"].map((field) => {
             const labels = {
               fullName: "Full Name *",
@@ -212,6 +261,7 @@ function AddEmployee() {
               email: "Email *"
             };
             if (field === "department") {
+              // Render select dropdown for department
               return React.createElement(
                 "div",
                 { className: "form-group", key: field },
@@ -231,6 +281,7 @@ function AddEmployee() {
                 )
               );
             } else {
+              // Render text or email input for other fields
               return React.createElement(
                 "div",
                 { className: "form-group", key: field },
@@ -246,6 +297,7 @@ function AddEmployee() {
               );
             }
           }),
+          // Render Cancel and Save buttons
           React.createElement(
             "div",
             { className: "btn-group" },
