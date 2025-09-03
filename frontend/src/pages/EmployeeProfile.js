@@ -8,7 +8,6 @@ import axios from '../axiosConfig';
 
 /**
  * EmployeeProfile component for displaying an employee's details
- * @returns {JSX.Element} Modal with employee profile information or error/loading state
  */
 function EmployeeProfile() {
   // Extract employee ID from URL parameters

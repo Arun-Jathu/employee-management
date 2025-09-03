@@ -37,8 +37,6 @@ app.use('/api/users', userRoutes);
 
 /**
  * Start the Express server
- * @param {number} PORT - Port number to listen on
- * @returns {void} Logs server start message
  */
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
